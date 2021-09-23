@@ -62,10 +62,10 @@ disp('LOADED ALL DATA AND SAVED FILE!');
 % clear all;
 dataset_name = 'bk17bl16'; 
 dataset_smoothing = 7500 ;
+save_figs = true; 
 
 disp(['Loading data for ' dataset_name]);
 load([dataset_name '_pressure_raw.mat']);
-
 switch dataset_name
     case 'bk12bk14'
         % bk12bk14 calibration
@@ -133,6 +133,12 @@ disp('calibration and filtering complete!');
 disp('plotting phase portrait');
 figure();
 plot(filt_data(1:end-1), diff(filt_data), 'b-');
+if save_figs
+   folder_name = 'Figures\\compare_behavior_analysis';
+   fig_name = sprintf('\\%s_smoothing_%d_phase_portrait.png',dataset_name, dataset_smoothing);
+   mkdir(folder_name);
+   saveas(gcf, strcat(folder_name, fig_name)); 
+end
 %% THRESHOLD DATA
 disp('processing behavior by threshold...');
 cycle_th = 0;
@@ -247,7 +253,11 @@ scatter(h_cycle_starts, filt_data(h_cycle_starts), 25, 'm', 'filled');
 scatter(h_cycle_starts, cal_data(h_cycle_starts), 50, 'b', 'filled');
 title([dataset_name ' smoothing = ' num2str(dataset_smoothing)]);
 % savefig([dataset_name '_transform_validation_' num2str(dataset_smoothing) '-hilbert.fig']);
-
+if save_figs
+   fig_name = '\\%s_smoothing_%d_transform_validation_hilbert.png';
+   fig_name = sprintf(fig_name, dataset_name, dataset_smoothing); 
+   saveas(gcf, strcat(folder_name, fig_name));
+end
 h_durs = diff([t_data(h_cycle_starts); t_data(h_cycle_ends)]);
 
 figure()
@@ -257,6 +267,11 @@ ylims = get(gca, 'ylim');
 plot([h_cycle_th h_cycle_th], ylims, 'r--');
 title([dataset_name ' smoothing = ' num2str(dataset_smoothing)]);
 % savefig([dataset_name '_detection_histogram_' num2str(dataset_smoothing) '-hilbert.fig']);
+if save_figs
+   fig_name = '\\%s_smoothing_%d_detection_histogram_hilbert.png';
+   fig_name = sprintf(fig_name, dataset_name, dataset_smoothing); 
+   saveas(gcf, strcat(folder_name, fig_name));
+end
 
 % good_h_cycles_ixs = find(h_durs > h_cycle_th);
 % h_good_cycle_starts = h_cycle_starts(good_h_cycles_ixs);
@@ -294,12 +309,22 @@ figure();
 plot(cycle_wavs_mat);
 title([dataset_name ' smoothing = ' num2str(dataset_smoothing)]);
 % savefig([dataset_name '_waveforms_' num2str(dataset_smoothing) '-hilbert.fig']);
+if save_figs
+   fig_name = '\\%s_smoothing_%d_waveforms_hilbert.png';
+   fig_name = sprintf(fig_name, dataset_name, dataset_smoothing); 
+   saveas(gcf, strcat(folder_name, fig_name));
+end
 
 [coeff, scores, ~,~,explained] = pca(cycle_wavs_mat');
 figure();
 scatter(scores(:,1), scores(:,2), 'b.');
 title([dataset_name ' smoothing = ' num2str(dataset_smoothing)]);
 % savefig([dataset_name '_pca_' num2str(dataset_smoothing) '-hilbert.fig']);
+if save_figs
+   fig_name = '\\%s_smoothing_%d_pca_hilbert.png';
+   fig_name = sprintf(fig_name, dataset_name, dataset_smoothing); 
+   saveas(gcf, strcat(folder_name, fig_name));
+end
 
 disp('done!');
 
