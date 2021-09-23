@@ -5,6 +5,7 @@ dataset_smoothing = 7500;
 
 epoch_window = 250;
 
+save_figs = true; 
 
 switch dataset_name 
     case 'bk12bk14'
@@ -61,6 +62,12 @@ title(['Cycle Duration - ' dataset_name ' smoothing = ' num2str(dataset_smoothin
 xlabel('Cycle ID');
 ylabel('Duration');
 
+% Saving figure
+if save_figs
+    mkdir('Figures\\comp_pressure_epoch');
+    fig_name = sprintf('%s_smoothing_%d_cycle_dur_plot.png', dataset_name, dataset_smoothing);
+    saveas(gcf, strcat('Figures\\comp_pressure_epoch\', fig_name));
+end
 %% Use peak detection of cycle maximum
 %  This method identifies the lowest maximum but does not necessarily
 %  identify the first cycle of the reset
@@ -82,12 +89,18 @@ ylabel('Duration');
 
 %% Plot cycles within each epoch
 
-epoch=1;
+folder_template = 'Figures\\comp_pressure_epoch\\Epochs\\epoch_%d';
+
 centroid_omit = 10;
 
 [~, scores, ~] = pca(cycle_wavs_mat');
 
 for epoch=1:(length(cycle_ixs)-1)
+    % Making directory for epoch
+    if save_figs
+        folder_name = sprintf(folder_template, epoch);
+        mkdir(folder_name);
+    end 
     figure();
     scatter(scores(:,1), scores(:,2), 5, 'k', 'filled', 'MarkerFaceAlpha', 0.1);
     xlabel('PC1');
@@ -98,7 +111,11 @@ for epoch=1:(length(cycle_ixs)-1)
     plot(scores(cycle_ixs(epoch):(cycle_ixs(epoch+1)-1),1), scores(cycle_ixs(epoch):(cycle_ixs(epoch+1)-1),2), 'b.-', 'MarkerSize', 15);
     plot(scores(cycle_ixs(epoch),1), scores(cycle_ixs(epoch),2), 'bx', 'MarkerSize', 15);
     plot(mean(scores((cycle_ixs(epoch)+centroid_omit):(cycle_ixs(epoch+1)-1),1)), mean(scores(cycle_ixs(epoch):(cycle_ixs(epoch+1)-1),2)), 'rx', 'MarkerSize', 10);
-
+    % Saving PCA plot
+    if save_figs
+        fig_name = sprintf('\\%s_smoothing_%d_epoch_%d_pca.png', dataset_name, dataset_smoothing,epoch);
+        saveas(gcf, strcat(folder_name, fig_name));
+    end
     figure();
     plot(cycle_wavs_mat(:,cycle_ixs(epoch):cycle_ixs(epoch+1)-1), 'k-');
     hold on;
@@ -112,6 +129,11 @@ for epoch=1:(length(cycle_ixs)-1)
     xlabel('Resample ID');
     ylabel('Pressure');
     title(['Epoch ' num2str(epoch) ' - ' dataset_name ' smoothing = ' num2str(dataset_smoothing)]);
+    % Saving pressure plot 
+    if save_figs
+        fig_name = sprintf('\\%s_smoothing_%d_epoch_%d_data.png', dataset_name, dataset_smoothing,epoch);
+        saveas(gcf, strcat(folder_name, fig_name));
+    end
 end
 
 
