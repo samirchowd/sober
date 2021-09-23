@@ -1,6 +1,6 @@
 %% Identify pressure cycle epochs
 % addpath('ContinuousMIEstimation');
-dataset_name = 'gr43or93' ;
+dataset_name = 'bk17bl16' ;
 dataset_smoothing = 7500;
 
 epoch_window = 250;
